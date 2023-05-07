@@ -11,8 +11,10 @@ import (
 	"github.com/gocolly/colly"
 )
 
-const ELEMENT_TYPES = "h1, h2, h3, h4, h5, h6, p, section, ul, article"
+const ELEMENT_TYPES = "h1, h2, h3, h4, h5, h6, p, ul, ol, span, pre"
 const OUTPUT_DIRECTORY_NAME = "./outputs"
+
+var FORBIDDEN_TEXT_CHARACTERS = [2]string{"\n", "\t"}
 
 type RouteDocument struct {
 	ElementTag string `json:"elementTag"`
@@ -27,9 +29,12 @@ type Scraper struct {
 	mutex           *sync.Mutex
 }
 
-func createRouteDocument(el *colly.HTMLElement) *RouteDocument {
-	rawText := el.DOM.Text()
-	finalInnerText := strings.ReplaceAll(strings.ToLower(rawText), "\n", " ")
+func CreateRouteDocument(el *colly.HTMLElement) *RouteDocument {
+	finalInnerText := strings.Join(strings.Fields(strings.ToLower(el.DOM.Text())), " ")
+
+	for _, FORBIDDEN_CHAR := range FORBIDDEN_TEXT_CHARACTERS {
+		finalInnerText = strings.ReplaceAll(finalInnerText, FORBIDDEN_CHAR, " ")
+	}
 
 	return &RouteDocument{
 		ElementTag: el.Name,
@@ -75,7 +80,7 @@ func (scraper *Scraper) AggregateData() {
 			scraper.contentRouteMap[relativeURLPath] = []*RouteDocument{}
 		}
 
-		scraper.contentRouteMap[relativeURLPath] = append(scraper.contentRouteMap[relativeURLPath], createRouteDocument(el))
+		scraper.contentRouteMap[relativeURLPath] = append(scraper.contentRouteMap[relativeURLPath], CreateRouteDocument(el))
 
 	})
 
@@ -103,6 +108,7 @@ func (scraper *Scraper) AggregateData() {
 }
 
 func NewScraper(domain string, protocol string, maxExplorationDepth uint) *Scraper {
+
 	collector := colly.NewCollector(colly.AllowedDomains(domain), colly.MaxDepth(int(maxExplorationDepth)), colly.Async(true))
 
 	return &Scraper{

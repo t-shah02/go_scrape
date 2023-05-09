@@ -13,12 +13,15 @@ Step 1: You will need to clone this repository somewhere on your machine, so you
 git clone https://github.com/t-shah02/go_scrape.git
 ```
 
-Step 2: Once the project is cloned, change your directory into the src folder, and build the Go project and save the scraper binary in the project's root folder
+Step 2: Now that repository is cloned, you can enter the folder and run the make command to automatically build, and compile the source code.
 ```bash
-cd go_scraper/src
-go build -o ../scraper
-cd ..
-./scraper -domain "YOUR_WEBSITE_DOMAIN" -protocol "https | http" -maxExplorationDepth 5
+make
+```
+
+Step 3: In order to run the generated binary, you need to go into the generated binary folder and run the scraper.
+```bash
+cd bin
+./scraper -domain fireship.io -maxExplorationDepth 5 
 ```
 
 Executable/binary flags 
@@ -27,6 +30,8 @@ Here is a brief list of each optional command-line argument that the scraper bin
 - **-domain (string)**: This is the allowed domain that the scraper traverses and mines text data from. ex: example.com
 - **-protocol (string)**: This is the protocol of the HTTP request that Colly will make on the web (it should be either http or https, based on your absolute URL)
 - **-maxExplorationDepth (unsigned int)**: This is the maximum recursive depth that the Colly collector will scrape hyperlinks through, while traversing the pages for text data. Fluctuating this value may yield less/more data in the output JSON file, as potentially more page routes could be asynchronously visited. 
+- **-outputFolderPath (string)**: This is the relative path to the folder that you want to save scraped data JSON file in. It will automatically create this folder at that path, if the directory doesn't currently exist
+- **-tags (string)**: A comma seperated list of HTML tag/elements, which indicate the DOM nodes that the scraper will target, when making requests to each page associated with the given domain. 
 
 Output Files
 ---
@@ -61,3 +66,15 @@ Here is an example of the JSON fields that you will find in an output file:
   ]
 }
 ```
+
+Issues and Discussion
+---
+Current project issues and tickets can be tracked here: https://github.com/t-shah02/go_scrape/issues
+
+Feel free to contact me regarding any questions you have about how the program works, or any code snippets that need clarification. You can also fork this repo, and make a pull request if you have any elegant solutions/ideas you want to see in this project.
+
+Future Goals
+---
+1. Make this web scraper a CLI command, so that it is more widely accessibly to users that don't have the GO compiler installed on their machines.
+2. Allow this scraper to run on an endpoint, in a RESTful API, containerize it with Docker and finally deploy it someplace in the cloud :)
+
